@@ -1,0 +1,18 @@
+receivers:
+  hostmetrics:
+    collection_interval: 5s
+    scrapers:
+      cpu:
+      memory:
+
+exporters:
+  logging:
+    verbosity: normal
+  prometheus:
+    endpoint: "local-collector:1234"
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      exporters: [logging, prometheus]

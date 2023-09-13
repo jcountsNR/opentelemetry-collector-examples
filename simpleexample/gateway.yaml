@@ -1,0 +1,42 @@
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'local-collector'
+          scrape_interval: 10s
+          static_configs:
+            - targets: ['local-collector:1234']
+
+processors:
+  cumulativetodelta:
+  resourcedetection:
+    detectors: [system]
+  resource:
+    attributes:
+    # Running on a Mac the system resource detector
+    # does not seem to generate host.id.
+    - key: host.id
+      value: "myhostid"
+      action: upsert
+
+    # Removing the following resource attributes to
+    # prevent New Relic from synthesizing a service entity
+    - key: service.name
+      action: delete
+    - key: service.instance.id
+      action: delete
+
+exporters:
+  logging:
+    verbosity: normal
+  otlp:
+    endpoint: $NEW_RELIC_OTLP_ENDPOINT
+    headers:
+      api-key: $NEW_RELIC_API_KEY
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [resourcedetection, resource]
+      exporters: [logging, otlp]

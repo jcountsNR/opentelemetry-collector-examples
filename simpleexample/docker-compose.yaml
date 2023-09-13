@@ -1,0 +1,24 @@
+version: "3.6"
+name: otel-collector
+
+services:
+
+  local-collector:
+    image: otel/opentelemetry-collector-contrib:0.84.0
+    command: --config=/etc/otelcol/config.yaml
+    volumes:
+      - ./local.yaml:/etc/otelcol/config.yaml
+    depends_on:
+      - gateway-collector
+
+  gateway-collector:
+    image: otel/opentelemetry-collector-contrib:0.84.0
+    command: --config=/etc/otelcol/config.yaml
+    volumes:
+      - ./gateway.yaml:/etc/otelcol/config.yaml
+    environment:
+      - NEW_RELIC_OTLP_ENDPOINT
+      - NEW_RELIC_API_KEY
+    ports:
+      - "4317:4317"
+      - "4318:4318"

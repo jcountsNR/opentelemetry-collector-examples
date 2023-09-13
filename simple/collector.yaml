@@ -1,0 +1,27 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+      memory:
+
+exporters:
+  logging:
+    verbosity: normal
+  otlp:
+    endpoint: $NEW_RELIC_OTLP_ENDPOINT
+    headers:
+      api-key: $NEW_RELIC_API_KEY
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlp, logging]
+    metrics:
+      receivers: [otlp, hostmetrics]
+      exporters: [otlp, logging]
